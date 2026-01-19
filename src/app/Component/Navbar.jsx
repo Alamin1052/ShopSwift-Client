@@ -1,41 +1,93 @@
 "use client";
-import Link from 'next/link'
-import { usePathname } from 'next/navigation';
+import { useSession, signOut, signIn } from "next-auth/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
     const pathname = usePathname();
-    return (
-        <div className=' bg-gray-800 shadow-lg'>
-            <div className="navbar container mx-auto">
-                <div className="navbar-start">
-                    <div className="dropdown">
-                        <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
-                        </div>
-                        <ul
-                            tabIndex="-1"
-                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow text-blue-500">
-                            <li><Link href="/" className="nav-link font-semibold"> Home</Link></li>
-                            <li><Link href="/" className="nav-link font-semibold">All Product</Link></li>
-                            <li><Link href="/" className="nav-link font-semibold">Add Product</Link></li>
+    const { data: session } = useSession();
 
+    const linkClass = (path) =>
+        pathname === path
+            ? "text-indigo-300 font-bold bg-white/10 rounded-lg px-3 py-2 backdrop-blur-md"
+            : "text-white hover:text-indigo-300 hover:bg-white/10 px-3 py-2 rounded-lg transition";
+
+    return (
+        <div className="sticky top-0 z-50 bg-gray-900/70 backdrop-blur-xl shadow-xl border-b border-white/10">
+            <div className="navbar container mx-auto px-4 py-2">
+
+                <div className="navbar-start">
+
+                    <div className="dropdown">
+                        <div
+                            tabIndex={0}
+                            role="button"
+                            className="btn btn-ghost lg:hidden text-white"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-7 w-7"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </div>
+
+                        <ul
+                            tabIndex={0}
+                            className="menu menu-sm dropdown-content bg-gray-800/90 backdrop-blur-lg text-white mt-3 w-52 p-3 rounded-xl shadow-lg border border-white/10"
+                        >
+                            <li><Link href="/" className={linkClass("/")}>Home</Link></li>
+                            <li><Link href="/Product" className={linkClass("/Product")}>Product</Link></li>
+                            <li><Link href="/AddProduct" className={linkClass("/AddProduct")}>Add Product</Link></li>
+                            <li><Link href="/ManageProduct" className={linkClass("/ManageProduct")}>Manage Product</Link></li>
                         </ul>
                     </div>
-                    <Link href="/" className=" text-indigo-400  text-2xl font-extrabold">ShopSwift</Link>
+
+                    <Link
+                        href="/"
+                        className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent tracking-wide"
+                    >
+                        ShopSwift
+                    </Link>
                 </div>
+
                 <div className="navbar-center hidden lg:flex">
-                    <ul className="menu menu-horizontal px-1  text-lg">
-                        <li><Link href="/" className={pathname === "/" ? "text-blue-500 bg-amber-300/80 font-bold" : "text-white hover:bg-amber-300/80"}> Home</Link></li>
-                        <li><Link href="/Product" className={pathname === "/Product" ? "text-blue-500 bg-amber-300/80 font-bold" : "text-white hover:bg-amber-300/80"}> Product</Link></li>
-                        <li><Link href="/AddProduct" className={pathname === "/AddProduct" ? "text-blue-500 bg-amber-300/80 font-bold" : "text-white hover:bg-amber-300/80"}> Add Product</Link></li>
-                        <li><Link href="/ManageProduct" className={pathname === "/ManageProduct" ? "text-blue-500 bg-amber-300/80 font-bold" : "text-white hover:bg-amber-300/80"}> Manage Product</Link></li>
-
-
+                    <ul className="flex gap-4 text-lg font-urbanist">
+                        <li><Link href="/" className={linkClass("/")}>Home</Link></li>
+                        <li><Link href="/Product" className={linkClass("/Product")}>Product</Link></li>
+                        <li><Link href="/AddProduct" className={linkClass("/AddProduct")}>Add Product</Link></li>
+                        <li><Link href="/ManageProduct" className={linkClass("/ManageProduct")}>Manage Product</Link></li>
                     </ul>
                 </div>
-                <div className="navbar-end">
 
-                    {/* {user ? (
+                <div className="navbar-end">
+                    {/* {session ? (
+                        <>
+                            {session.user.image && (
+                                <img
+                                    src={session.user.image}
+                                    alt={session.user.name}
+                                    className="w-8 h-8 rounded-full object-cover"
+                                />
+                            )}
+                            <span className="text-white">{session.user.name}</span>
+                            <button
+                                onClick={() => signOut()}
+                                className="btn btn-sm bg-red-500 text-white"
+                            >
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <button onClick={() => signIn()} className="btn btn-sm bg-blue-500 text-white">
+                            Login
+                        </button>
+                    )} */}
+                    {session ? (
                         <div className="dropdown dropdown-end z-50">
                             <div
                                 tabIndex={0}
@@ -46,7 +98,7 @@ export default function Navbar() {
                                     <img
                                         alt="Tailwind CSS Navbar component"
                                         referrerPolicy="no-referrer"
-                                        src={user.photoURL || avatar}
+                                        src={session.user.image || avatar}
                                     />
                                 </div>
                             </div>
@@ -55,13 +107,15 @@ export default function Navbar() {
                                 className="menu  menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow"
                             >
                                 <div className=" pb-3 border-b border-b-gray-200">
-                                    <li className="text-sm font-bold">{user.displayName || 'New user'}</li>
-                                    <li className="text-xs">{user.email}</li>
+                                    <li className="text-sm font-bold">{session.user.name || 'New user'}</li>
+                                    <li className="text-xs">{session.user.email}</li>
                                 </div>
+                                <li><Link href="/AddProduct" className={("/AddProduct")}>Add Product</Link></li>
+                                <li><Link href="/ManageProduct" className={("/ManageProduct")}>Manage Product</Link></li>
 
                                 <li>
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={() => signOut()}
                                         className="btn btn-xs text-left bg-linear-to-r from-blue-800 to-blue-500 text-white"
                                     >
                                         Logout
@@ -69,15 +123,15 @@ export default function Navbar() {
                                 </li>
                             </ul>
                         </div>
-                    ) : ( */}
-                    <Link
-                        href="/login"
-                        className="btn rounded-full border-0 btn-outline  btn-sm bg-linear-to-r from-indigo-800 to-indigo-500 px-8 py-6 text-xl text-white"
-                    > Login
-                    </Link>
-                    {/* )} */}
+                    ) : (
+                        <Link
+                            href="/login"
+                            className="btn rounded-full border-gray-300  btn-sm bg-linear-to-r from-blue-800 to-blue-500 px-8 text-white"
+                        >Login
+                        </Link>
+                    )}
                 </div>
             </div>
         </div >
-    )
+    );
 }
